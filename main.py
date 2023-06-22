@@ -3,6 +3,8 @@ import pyttsx3
 import wikipedia
 import datetime
 import os
+import sys
+from PyQt5 import QtWidgets
 
 def listen():
     r = sr.Recognizer()
@@ -29,39 +31,51 @@ def speak(text):
     engine.runAndWait()
 
 def weather():
-    city = input("What city would you like to know the weather for? ")
+    city = listen()
     weather_data = wikipedia.summary(city + " weather", sentences=1)
     speak(weather_data)
 
 def todo():
     todo_list = []
     while True:
-        task = input("What would you like to add to your to-do list? ")
+        task = listen()
         todo_list.append(task)
         print("Your to-do list is now: " + str(todo_list))
-        answer = input("Would you like to add another item to your to-do list? (y/n) ")
+        answer = listen()
         if answer == "n":
             break
 
 def alarm():
-    hour = int(input("What hour would you like the alarm to go off? "))
-    minute = int(input("What minute would you like the alarm to go off? "))
+    hour = int(listen())
+    minute = int(listen())
     speak("Your alarm is set for " + str(hour) + ":" + str(minute))
 
+def google_search():
+    query = listen()
+    url = "https://www.google.com/search?q=" + query
+    os.system(f"start {url}")
+
+def chrome_search():
+    query = listen()
+    url = "https://www.google.com/search?q=" + query
+    os.system(f"start chrome {url}")
+
+def youtube_search():
+    query = listen()
+    url = "https://www.youtube.com/results?search_query=" + query
+    os.system(f"start chrome {url}")
+
 def main():
-    while True:
-        command = listen()
-        if command == "weather":
-            weather()
-        elif command == "time":
-            current_time = datetime.datetime.now().strftime("%H:%M:%S")
-            speak("The current time is " + current_time)
-        elif command == "todo":
-            todo()
-        elif command == "alarm":
-            alarm()
-        elif command == "exit":
-            break
+    app = QtWidgets.QApplication(sys.argv)
+    window = QtWidgets.QWidget()
+    window.setWindowTitle("Voice Assistant")
+    button = QtWidgets.QPushButton("Listen")
+    button.clicked.connect(lambda: speak(listen()))
+    layout = QtWidgets.QVBoxLayout()
+    layout.addWidget(button)
+    window.setLayout(layout)
+    window.show()
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
     main()
